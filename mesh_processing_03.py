@@ -78,15 +78,50 @@ def VFtoHEDS(vertices, faces):
             face_halfEdgesArray[i].face = face
             face_halfEdgesArray[i].next = face_halfEdgesArray[(i + 1) % 3]
             face_halfEdgesArray[i].prev = face_halfEdgesArray[(i + 2) % 3]
+    
+    #to change memory dorection to actual numbers
+    vertex_to_index = {v: idx for idx, v in verticesArray.items()}
 
     # Connect twins
+    #######################################################################################
+    edge_dict = {} #dictionary to track edges to mach with their twins
+    for face_index, face_vertices in enumerate(faces):
+        print(f"\nCara {face_index}: Vertices {face_vertices}")
+        for i in range(3):
+            curr = face_vertices[i] #current vertex
+            next_v = face_vertices[(i + 1) % 3]  #next vertex (the twin)
+            he = halfEdgesArray[face_index * 3 + i] #current half edge 
+            
+            he.origin = verticesArray[curr]  #start point
+            he.next = halfEdgesArray[face_index * 3 + (i + 1) % 3]#next half edge in the face
+            
+            key = (min(curr, next_v), max(curr, next_v))
+            if key in edge_dict:
+                twin = edge_dict[key] #twin has been found 
+                he.twin = twin#link current hald edge to twin 
+                twin.twin = he#link twin bak to current
+                print(f"conectado twon: {curr}→{next_v} <-> {vertex_to_index[twin.origin]}→{vertex_to_index[twin.next.origin]}")
+            else:
+                edge_dict[key] = he #store for later 
+                print(f"Añadido a diccionario (sin twin aún)")
 
+    # Debuggin for finding all the twins
+    print("\n=== verificacion de twins ===")
+    for he in halfEdgesArray:
+        if he.twin:
+            # use vertex_to_index so that we can use numbers instead of the memory
+            origin_idx = vertex_to_index[he.origin]
+            next_idx = vertex_to_index[he.next.origin]
+            twin_origin_idx = vertex_to_index[he.twin.origin]
+            twin_next_idx = vertex_to_index[he.twin.next.origin]
+            print(f"Half-Edge {origin_idx}→{next_idx} | Twin: {twin_origin_idx}→{twin_next_idx}")
+        else:
+            # the borders
+            origin_idx = vertex_to_index[he.origin]
+            next_idx = vertex_to_index[he.next.origin]
+            print(f"Half-Edge {origin_idx}→{next_idx} | Twin: no(borde)")
+       #########################################################################################3 
     return verticesArray, halfEdgesArray, facesArray
-
-
-
-
-
 
 # convert back to VF (Vertices Faces data structure)
 def getFaceVertices(face):
