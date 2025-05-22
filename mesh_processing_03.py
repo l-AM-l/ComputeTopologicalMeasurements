@@ -185,7 +185,12 @@ visualizeMesh(vertices, faces)
 
 # convert to HEDS
 verticesArray, halfEdgesArray, facesArray = VFtoHEDS(vertices, faces)
-
+#CONFIRMACION QUE SI FUNCIONAN LOS TWINS EN EL HALFEDGES ARRAY
+he = halfEdgesArray[1]
+if he.twin:
+    print("Este half-edge tiene un twin conectado")
+else:
+    print("NOOOOOOOOOOOO BORDE")
 # Any mesh processing operation (your final project) using HEDS structure
 
 # convert back to VF
