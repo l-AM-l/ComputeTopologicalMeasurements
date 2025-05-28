@@ -9,19 +9,26 @@ import matplotlib.pyplot as plt
 def readObjFile(file_path):
     vertices = []
     faces = []
+    normals = [] #use so that it can read the vn 
     
     with open(file_path, 'r') as obj_file:
         for line in obj_file:
             if line.startswith('v '):
-                #mete las palabras que inicien con "v" a la lista sindo esta los vertices
                 vertex = list(map(float, line.strip().split()[1:]))
                 vertices.append(vertex)
+            elif line.startswith('vn '):
+                normal = list(map(float, line.strip().split()[1:]))
+                normals.append(normal)
             elif line.startswith('f '):
-                 #mete las palabras que inicien con "f" a la lista sindo esta los faces
-                face = list(map(int, line.strip().split()[1:]))
-                face = [index - 1 for index in face]
+                face_data = line.strip().split()[1:]
+                face = []
+                for item in face_data:
+                    # so that we can manage formats like "v", "v/vt", "v//vn", o "v/vt/vn" for genus_03
+                    vertex_index = item.split('/')[0]  
+                    face.append(int(vertex_index) - 1)  
                 faces.append(face)
-    return vertices, faces
+    
+    return vertices, faces 
 
 # plot the mesh (optional, we will use meshlab) 
 
@@ -86,7 +93,7 @@ def VFtoHEDS(vertices, faces):
     #######################################################################################
     edge_dict = {} #dictionary to track edges to mach with their twins
     for face_index, face_vertices in enumerate(faces):
-        print(f"\nCara {face_index}: Vertices {face_vertices}")
+        #print(f"\nCara {face_index}: Vertices {face_vertices}")
         for i in range(3):
             curr = face_vertices[i] #current vertex
             next_v = face_vertices[(i + 1) % 3]  #next vertex (the twin)
@@ -100,12 +107,13 @@ def VFtoHEDS(vertices, faces):
                 twin = edge_dict[key] #twin has been found 
                 he.twin = twin#link current hald edge to twin 
                 twin.twin = he#link twin bak to current
-                print(f"conectado twon: {curr}→{next_v} <-> {vertex_to_index[twin.origin]}→{vertex_to_index[twin.next.origin]}")
+               # print(f"conectado twon: {curr}→{next_v} <-> {vertex_to_index[twin.origin]}→{vertex_to_index[twin.next.origin]}")
             else:
                 edge_dict[key] = he #store for later 
-                print(f"Añadido a diccionario (sin twin aún)")
+                #print(f"Añadido a diccionario (sin twin aún)")
 
     # Debuggin for finding all the twins
+    """
     print("\n=== verificacion de twins ===")
     for he in halfEdgesArray:
         if he.twin:
@@ -119,7 +127,7 @@ def VFtoHEDS(vertices, faces):
             # the borders
             origin_idx = vertex_to_index[he.origin]
             next_idx = vertex_to_index[he.next.origin]
-            print(f"Half-Edge {origin_idx}→{next_idx} | Twin: no(borde)")
+            print(f"Half-Edge {origin_idx}→{next_idx} | Twin: no(borde)")"""
        #########################################################################################3 
     return verticesArray, halfEdgesArray, facesArray
 
@@ -176,15 +184,43 @@ def visualizeMesh(vertices, faces, vertex_color='k', edge_color='b'):
     
     plt.show()
 
+######################################################################
+def compute_genus(vertices, faces, halfEdgesArray):
+    
+    V = len(vertices)  # number of vertices
+    F = len(faces)     # number of faces
+    E = len(halfEdgesArray)//2 #number of edges (aristas) since an edges is composed of 2 halfedge, i just divided by 2
+    B = 0 
+    for he in halfEdgesArray: #checks if the half edge has no twin (is a border) if it doesnt it add to the cont
+        if he.twin is None:
+            B += 1
 
+    # Calculate genus with the euler poincare formula
+    genus = (2 - V + E - F - B) // 2
+    
+    #make it pretty 
+    print("┌──────────────────────────────┐")
+    print("│     TOPOLOGICAL MEASURES     │")
+    print("├──────────────────────────────┤")
+    print(f"│ Vertices (V): {V}           │")  
+    print(f"│ Edges (E): {E}              │")
+    print(f"│ Faces (F): {F}              │")
+    print(f"│ falta connecetd components: │")
+    print(f"│ Boundary edges (B):{B:<9} │")
+    print(f"│ Genus: {genus:<12}          │")
+    print("└──────────────────────────────┘")
+    
+    return genus, B
+#################################################################
 # read obj
-vertices, faces = readObjFile('input.obj')
+vertices, faces = readObjFile('Genus_01.obj')
 
 # visualize the mesh
 visualizeMesh(vertices, faces)   
 
 # convert to HEDS
 verticesArray, halfEdgesArray, facesArray = VFtoHEDS(vertices, faces)
+genus, B = compute_genus(verticesArray.values(), facesArray.values(), halfEdgesArray)
 #CONFIRMACION QUE SI FUNCIONAN LOS TWINS EN EL HALFEDGES ARRAY
 he = halfEdgesArray[1]
 if he.twin:
