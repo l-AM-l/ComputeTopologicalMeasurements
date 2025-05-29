@@ -1,5 +1,6 @@
 
 # Computational Geometry final project 2025
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -10,8 +11,8 @@ def readObjFile(file_path):
     vertices = []
     faces = []
     normals = [] #use so that it can read the vn 
-    
-    with open(file_path, 'r') as obj_file:
+    full_path = os.path.join("meshes", file_path)
+    with open(full_path, 'r') as obj_file:
         for line in obj_file:
             if line.startswith('v '):
                 vertex = list(map(float, line.strip().split()[1:]))
@@ -197,6 +198,8 @@ def compute_genus(vertices, faces, halfEdgesArray):
 
     # Calculate genus with the euler poincare formula
     genus = (2 - V + E - F - B) // 2
+    if genus <0:
+        print("genus is undefinied")
     
     #make it pretty 
     print("┌──────────────────────────────┐")
@@ -205,15 +208,52 @@ def compute_genus(vertices, faces, halfEdgesArray):
     print(f"│ Vertices (V): {V}           │")  
     print(f"│ Edges (E): {E}              │")
     print(f"│ Faces (F): {F}              │")
-    print(f"│ falta connecetd components: │")
+    print(f"│ Connected components: {count_connected_components(facesArray):<6} │" )
     print(f"│ Boundary edges (B):{B:<9} │")
     print(f"│ Genus: {genus:<12}          │")
     print("└──────────────────────────────┘")
     
     return genus, B
 #################################################################
+def count_connected_components(facesArray):
+   
+    visited_faces = {}  # to keep track and avoid duplicates 
+    component_count = 0
+
+    #goes throgh all the faces in the mesh
+    for current_face in facesArray.values():
+        if not visited_faces.get(current_face, False): #id it couldnt access that face ita a new component
+            component_count += 1 
+            
+            #dfs stack trasversal 
+            dfs_stack = [current_face]
+            # Process all connected faces
+            while dfs_stack:
+                
+                processing_face = dfs_stack.pop()# get the next face to process
+                #doouble check if not visited
+                if not visited_faces.get(processing_face, False):
+                    visited_faces[processing_face] = True  
+                    
+                    start_edge = processing_face.halfEdge
+                    current_edge = start_edge
+                    
+                    # process all edges of this face 
+                    while True:
+                        # check if it has a twin connecting to other face
+                        if current_edge.twin and not visited_faces.get(current_edge.twin.face, False):
+                            # add neighboring face to stack for processing
+                            dfs_stack.append(current_edge.twin.face)
+                        
+                        # move to next edge in the face
+                        current_edge = current_edge.next
+                        
+                        if current_edge == start_edge: #once it returns to the start edge it has gone through the entire mesh 
+                            break
+    
+    return component_count
 # read obj
-vertices, faces = readObjFile('Genus_01.obj')
+vertices, faces = readObjFile('connected_components_01.obj')
 
 # visualize the mesh
 visualizeMesh(vertices, faces)   
@@ -228,6 +268,7 @@ if he.twin:
 else:
     print("NOOOOOOOOOOOO BORDE")
 # Any mesh processing operation (your final project) using HEDS structure
+
 
 # convert back to VF
 newVertices, newFaces = HEDStoVF(verticesArray, halfEdgesArray, facesArray)
