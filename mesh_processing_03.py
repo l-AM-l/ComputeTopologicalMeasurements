@@ -252,6 +252,9 @@ def count_connected_components(facesArray):
                             break
     
     return component_count
+
+
+#REEBE GRAPH I HAVE TO DO IT 
 # read obj
 vertices, faces = readObjFile('connected_components_01.obj')
 
