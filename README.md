@@ -22,5 +22,11 @@ The goal of this project is to:
 - `input.obj`: Example input mesh.
 - `output.obj`: Output mesh with corrected orientation (if needed).
 
+---
+
+## Team
+
+- Ana María Guzmán Solís (025000)
+- Raquel Magdalena Ochoa Martínez (0235324)
 
 ---
