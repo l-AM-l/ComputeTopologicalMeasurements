@@ -1,4 +1,4 @@
-# Compute Topological Measurements (borrador lo que creo que va el proyecto)
+# Compute Topological Measurements 
 
 This project analyzes the topological structure of a 3D mesh using the **Half-Edge Data Structure (HEDS)**. It was developed as a final project for a computational geometry course.
 
@@ -9,8 +9,7 @@ This project analyzes the topological structure of a 3D mesh using the **Half-Ed
 The goal of this project is to:
 - Convert a mesh from `.obj` format into the Half-Edge Data Structure (HEDS).
 - Detect **connected components** in the mesh.
-- Analyze the **spatial relationship** between components (e.g., whether one is inside another).
-- Identify and count **open boundaries** (holes).
+
 - Compute the **genus** (number of "handles" or "holes").
 - (Optional) Correct the orientation of the normals if necessary.
 
