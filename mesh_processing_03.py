@@ -198,9 +198,10 @@ def compute_genus(vertices, faces, halfEdgesArray):
 
     # Calculate genus with the euler poincare formula
     genus = (2 - V + E - F - B) // 2
-    if genus <0:
-        print("genus is undefinied")
-    
+    if genus < -1:
+        genus_display = "undefinied"
+    else:
+        genus_display = str(genus)
     #make it pretty 
     print("┌──────────────────────────────┐")
     print("│     TOPOLOGICAL MEASURES     │")
@@ -210,7 +211,7 @@ def compute_genus(vertices, faces, halfEdgesArray):
     print(f"│ Faces (F): {F}              │")
     print(f"│ Connected components: {count_connected_components(facesArray):<6} │" )
     print(f"│ Boundary edges (B):{B:<9} │")
-    print(f"│ Genus: {genus:<12}          │")
+    print(f"│ Genus: {genus_display:<12}          │")
     print("└──────────────────────────────┘")
     
     return genus, B
@@ -252,21 +253,25 @@ def count_connected_components(facesArray):
                             break
     
     return component_count
+
 # read obj
-vertices, faces = readObjFile('connected_components_01.obj')
+test1 = 'connected_components_01.obj'
+test2 = 'Genus_01.obj'
+test3 = 'Genus_02.obj'
+test4 = 'Genus_03.obj'
+test5 = 'input.obj'
+
+vertices, faces = readObjFile(test1)
 
 # visualize the mesh
 visualizeMesh(vertices, faces)   
 
 # convert to HEDS
 verticesArray, halfEdgesArray, facesArray = VFtoHEDS(vertices, faces)
+print(test1)
 genus, B = compute_genus(verticesArray.values(), facesArray.values(), halfEdgesArray)
-#CONFIRMACION QUE SI FUNCIONAN LOS TWINS EN EL HALFEDGES ARRAY
-he = halfEdgesArray[1]
-if he.twin:
-    print("Este half-edge tiene un twin conectado")
-else:
-    print("NOOOOOOOOOOOO BORDE")
+
+
 # Any mesh processing operation (your final project) using HEDS structure
 
 
