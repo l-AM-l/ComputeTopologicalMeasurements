@@ -19,14 +19,25 @@ The goal of this project is to:
 ## Files
 
 - `mesh_processin_03.py`: Main script to load the mesh, build HEDS, analyze the mesh, and output results.
+- `reeb.py`: script to create reeb graph, all fuctions realated are there.
 - `input.obj`: Example input mesh.
 - `output.obj`: Output mesh with corrected orientation (if needed).
 
 ---
 
+## libraries
+
+To run the project it is necessary to install the following libraries, it can be done from terminal using `pip install`
+
+- `numpy`
+- `matplotlib`
+- `networkx`
+
+---
+
 ## Team
 
-- Ana María Guzmán Solís (025000)
+- Ana María Guzmán Solís (0252231)
 - Raquel Magdalena Ochoa Martínez (0235324)
 
 ---
