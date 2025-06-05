@@ -4,7 +4,17 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+from reebe import (
+    scalar_function,
+    group_faces_by_scalar_level,
+    compute_connected_components_by_level,
+    create_scalar_levels,
+    get_vertices_in_level,
+    get_vertex_neighbors,
+    find_connected_vertex_components,
+    build_reeb_graph,
+    plot_reeb_graph
+)
 
 # read obj file
 def readObjFile(file_path):
@@ -280,3 +290,29 @@ newVertices, newFaces = HEDStoVF(verticesArray, halfEdgesArray, facesArray)
 
 # write the final result
 writeObjFile(newVertices, newFaces, 'output.obj')
+###REEB GRAPH
+print("\nReeb Graph - Connected Components by Level (Z-axis)")
+components_by_level = compute_connected_components_by_level(facesArray, num_levels=10)
+for level, count in components_by_level.items():
+    print(f"Nivel {level}: {count} componente(s)")
+
+#Para ver la impresion de vertices por niveles
+"""
+levels = create_scalar_levels({v: scalar_function(v) for v in verticesArray.values()}, num_levels=10)
+print("\nVértices por nivel (Z):")
+for i, (low, high) in enumerate(levels):
+    verts_in_range = get_vertices_in_level(verticesArray, low, high)
+    print(f"Nivel {i} ({low:.2f}, {high:.2f}): {len(verts_in_range)} vértice(s)")
+"""
+#para porbar DFS
+""""
+print("\nComponentes conexas por nivel (vértices conectados en Z):")
+for i, (low, high) in enumerate(levels):
+    verts_in_range = get_vertices_in_level(verticesArray, low, high)
+    components = find_connected_vertex_components(verts_in_range)
+    print(f"Nivel {i} ({low:.2f}, {high:.2f}): {len(components)} componente(s)")
+"""
+
+#VISUALIZAR REEB
+G, node_mapping = build_reeb_graph(verticesArray, num_levels=10)
+plot_reeb_graph(G)
